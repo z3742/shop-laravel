@@ -1,59 +1,87 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# shop-laravel —— Laravel 商城系统
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+基于 **Laravel 12** 开发的电商系统，实现从商品浏览到下单的完整购物流程，用于练习 Laravel 框架的路由、控制器、Eloquent ORM 等核心机制。
 
-## About Laravel
+## 功能特性
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| 模块 | 功能 |
+|------|------|
+| 首页 | 商城首页展示 |
+| 商品分类 | 分类列表、按分类（slug）浏览商品 |
+| 商品 | 商品列表、关键词搜索、商品详情页（slug 路由）、关联商品推荐 |
+| 购物车 | 加入购物车、修改数量、移除单品、清空购物车、结算页 |
+| 订单 | 创建订单、订单列表、订单详情 |
+| 收货地址 | 地址增删、设置默认地址 |
+| 用户中心 | 注册、登录、退出、个人资料查看与修改 |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 技术栈
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- 后端：PHP 8.x + Laravel 12
+- 数据库：MySQL
+- Web 服务：Nginx（本地 Linux 环境）
+- 前端：Blade 模板 + HTML/CSS/JavaScript
 
-## Learning Laravel
+## 路由设计说明
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+项目采用 **Laravel 传统路由定义方式**（`routes/web.php` 统一管理），按业务模块划分路由组：
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+/                          首页
+/categories/{slug}         分类详情
+/products                  商品列表
+/products/search           商品搜索
+/products/{slug}           商品详情
+/cart/*                    购物车（增/改/删/清空/结算）
+/user/profile              个人资料
+/user/addresses/*          收货地址管理
+/order/*                   订单创建与查询
+```
 
-## Laravel Sponsors
+路由组使用 `prefix` 统一 URL 前缀、`name` 统一路由命名（如 `cart.add`、`order.store`），视图层通过 `route()` 函数生成 URL，避免硬编码链接。
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 本地安装与运行
 
-### Premium Partners
+```bash
+# 1. 克隆项目
+git clone https://github.com/z3742/shop-laravel.git
+cd shop-laravel
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# 2. 安装依赖
+composer install
 
-## Contributing
+# 3. 配置环境
+cp .env.example .env
+# 编辑 .env，填写数据库连接信息（DB_DATABASE / DB_USERNAME / DB_PASSWORD）
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 4. 生成应用密钥
+php artisan key:generate
 
-## Code of Conduct
+# 5. 初始化数据表
+php artisan migrate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 6. 启动开发服务器
+php artisan serve
+```
 
-## Security Vulnerabilities
+## 项目结构（核心部分）
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+shop-laravel/
+├── app/Http/Controllers/   # 控制器
+│   ├── HomeController.php      # 首页
+│   ├── CategoryController.php  # 分类
+│   ├── ProductController.php   # 商品与搜索
+│   ├── CartController.php      # 购物车与结算
+│   ├── OrderController.php     # 订单
+│   ├── AddressController.php   # 收货地址
+│   ├── UserController.php      # 用户中心
+│   └── AuthController.php      # 注册登录
+├── routes/web.php          # 全部页面路由定义
+├── resources/views/        # Blade 视图模板
+└── database/migrations/    # 数据库迁移
+```
 
-## License
+## 说明
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- 本项目为个人学习项目，未接入真实支付，订单创建到"待支付"状态为止
+- 业务数据表结构【建议：导出业务表 SQL 放入仓库（如 database/shop.sql），并在此注明导入方式后删除本行】
